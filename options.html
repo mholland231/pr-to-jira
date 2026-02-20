@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PR to JIRA - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>PR to JIRA Settings</h1>
+
+    <form id="settings-form">
+      <section>
+        <h2>JIRA Configuration</h2>
+        <div class="field">
+          <label for="jiraOrg">Organization Domain</label>
+          <input type="text" id="jiraOrg" placeholder="mycompany (from mycompany.atlassian.net)">
+          <span class="hint">The subdomain of your Atlassian instance</span>
+        </div>
+        <div class="field">
+          <label for="jiraEmail">Email</label>
+          <input type="email" id="jiraEmail" placeholder="you@company.com">
+        </div>
+        <div class="field">
+          <label for="jiraToken">API Token</label>
+          <input type="password" id="jiraToken" placeholder="Your JIRA API token">
+          <span class="hint">Generate at <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">id.atlassian.com</a></span>
+        </div>
+      </section>
+
+      <section>
+        <h2>GitHub Configuration</h2>
+        <div class="field">
+          <label for="githubToken">Personal Access Token</label>
+          <input type="password" id="githubToken" placeholder="ghp_...">
+          <span class="hint">Needs <code>repo</code> scope. Generate at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a></span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Default Values</h2>
+        <div class="field">
+          <label for="defaultProject">Project Key</label>
+          <input type="text" id="defaultProject" placeholder="PROJ">
+        </div>
+        <div class="field">
+          <label for="defaultIssueType">Issue Type</label>
+          <select id="defaultIssueType">
+            <option value="Task">Task</option>
+            <option value="Story">Story</option>
+            <option value="Bug">Bug</option>
+            <option value="Sub-task">Sub-task</option>
+            <option value="Epic">Epic</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="defaultPriority">Priority</label>
+          <input type="text" id="defaultPriority" placeholder="e.g. High, Medium (leave blank for project default)">
+          <span class="hint">Must match a priority name in your JIRA instance. Leave blank to use project default.</span>
+        </div>
+        <div class="field">
+          <label for="defaultLabels">Labels</label>
+          <input type="text" id="defaultLabels" placeholder="label1, label2">
+          <span class="hint">Comma-separated</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Custom Fields</h2>
+        <p class="hint">Map JIRA custom fields to default values.</p>
+        <div id="custom-fields-list"></div>
+        <button type="button" id="add-custom-field" class="btn-secondary">+ Add Custom Field</button>
+      </section>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary">Save Settings</button>
+        <span id="status-msg"></span>
+      </div>
+    </form>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

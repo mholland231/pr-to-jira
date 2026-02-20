@@ -1,0 +1,60 @@
+const FIELDS = ['jiraOrg', 'jiraEmail', 'jiraToken', 'githubToken',
+  'defaultProject', 'defaultIssueType', 'defaultPriority', 'defaultLabels'];
+
+document.addEventListener('DOMContentLoaded', loadSettings);
+document.getElementById('settings-form').addEventListener('submit', saveSettings);
+document.getElementById('add-custom-field').addEventListener('click', () => addCustomFieldRow('', ''));
+
+function loadSettings() {
+  chrome.storage.sync.get([...FIELDS, 'customFields'], (data) => {
+    for (const id of FIELDS) {
+      if (data[id]) document.getElementById(id).value = data[id];
+    }
+    if (Array.isArray(data.customFields)) {
+      for (const cf of data.customFields) {
+        addCustomFieldRow(cf.key, cf.value);
+      }
+    }
+  });
+}
+
+function saveSettings(e) {
+  e.preventDefault();
+  const data = {};
+  for (const id of FIELDS) {
+    data[id] = document.getElementById(id).value.trim();
+  }
+  data.customFields = getCustomFields();
+  chrome.storage.sync.set(data, () => {
+    const msg = document.getElementById('status-msg');
+    msg.textContent = 'Settings saved!';
+    setTimeout(() => { msg.textContent = ''; }, 2000);
+  });
+}
+
+function addCustomFieldRow(key, value) {
+  const list = document.getElementById('custom-fields-list');
+  const row = document.createElement('div');
+  row.className = 'custom-field-row';
+  row.innerHTML =
+    '<input type="text" class="cf-key" placeholder="customfield_10001" value="' + escapeAttr(key) + '">' +
+    '<input type="text" class="cf-value" placeholder="Value" value="' + escapeAttr(value) + '">' +
+    '<button type="button" class="btn-remove" title="Remove">&times;</button>';
+  row.querySelector('.btn-remove').addEventListener('click', () => row.remove());
+  list.appendChild(row);
+}
+
+function getCustomFields() {
+  const rows = document.querySelectorAll('.custom-field-row');
+  const fields = [];
+  for (const row of rows) {
+    const key = row.querySelector('.cf-key').value.trim();
+    const value = row.querySelector('.cf-value').value.trim();
+    if (key) fields.push({ key, value });
+  }
+  return fields;
+}
+
+function escapeAttr(str) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}

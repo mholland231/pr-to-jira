@@ -1,0 +1,217 @@
+/* ---- Injected Button ---- */
+#pr-to-jira-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #24292f;
+  background: #f6f8fa;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 20px;
+  white-space: nowrap;
+  vertical-align: middle;
+  height: 28px;
+  box-sizing: border-box;
+}
+
+#pr-to-jira-btn:hover {
+  background: #eaeef2;
+}
+
+#pr-to-jira-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ---- Modal Overlay ---- */
+#pr-to-jira-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Modal ---- */
+#pr-to-jira-modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #24292f;
+}
+
+#pr-to-jira-modal .ptj-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #d0d7de;
+}
+
+#pr-to-jira-modal .ptj-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+#pr-to-jira-modal .ptj-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #656d76;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+#pr-to-jira-modal .ptj-close:hover {
+  color: #24292f;
+}
+
+#pr-to-jira-modal .ptj-body {
+  padding: 20px;
+}
+
+#pr-to-jira-modal .ptj-field {
+  margin-bottom: 14px;
+}
+
+#pr-to-jira-modal .ptj-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #24292f;
+}
+
+#pr-to-jira-modal .ptj-field input,
+#pr-to-jira-modal .ptj-field select,
+#pr-to-jira-modal .ptj-field textarea {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+  color: #24292f;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+#pr-to-jira-modal .ptj-field input:focus,
+#pr-to-jira-modal .ptj-field select:focus,
+#pr-to-jira-modal .ptj-field textarea:focus {
+  outline: none;
+  border-color: #0969da;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+}
+
+#pr-to-jira-modal .ptj-field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#pr-to-jira-modal .ptj-row {
+  display: flex;
+  gap: 12px;
+}
+
+#pr-to-jira-modal .ptj-row .ptj-field {
+  flex: 1;
+}
+
+#pr-to-jira-modal .ptj-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #d0d7de;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+#pr-to-jira-modal .ptj-btn-cancel {
+  padding: 6px 14px;
+  font-size: 14px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #f6f8fa;
+  color: #24292f;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+#pr-to-jira-modal .ptj-btn-cancel:hover {
+  background: #eaeef2;
+}
+
+#pr-to-jira-modal .ptj-btn-submit {
+  padding: 6px 16px;
+  font-size: 14px;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  background: #2da44e;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#pr-to-jira-modal .ptj-btn-submit:hover {
+  background: #218838;
+}
+
+#pr-to-jira-modal .ptj-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status messages */
+#pr-to-jira-modal .ptj-status {
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+}
+
+#pr-to-jira-modal .ptj-status.ptj-error {
+  color: #cf222e;
+}
+
+#pr-to-jira-modal .ptj-status.ptj-success {
+  color: #1a7f37;
+}
+
+#pr-to-jira-modal .ptj-status.ptj-success a {
+  color: #0969da;
+  text-decoration: underline;
+}
+
+#pr-to-jira-modal .ptj-status.ptj-warning {
+  color: #9a6700;
+}
+
+#pr-to-jira-modal .ptj-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #d0d7de;
+  border-top-color: #0969da;
+  border-radius: 50%;
+  animation: ptj-spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes ptj-spin {
+  to { transform: rotate(360deg); }
+}
