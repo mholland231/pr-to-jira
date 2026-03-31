@@ -27,6 +27,10 @@
           <input type="password" id="jiraToken" placeholder="Your JIRA API token">
           <span class="hint">Generate at <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">id.atlassian.com</a></span>
         </div>
+        <div class="actions actions-inline">
+          <button type="button" id="test-jira-token" class="btn-secondary">Test API Token</button>
+          <span id="jira-test-status" class="status-inline" aria-live="polite"></span>
+        </div>
       </section>
 
       <section>

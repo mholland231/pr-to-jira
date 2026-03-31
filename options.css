@@ -149,6 +149,10 @@ select:focus {
   margin-top: 8px;
 }
 
+.actions-inline {
+  margin-top: 0;
+}
+
 .btn-primary {
   background: #2da44e;
   color: #fff;
@@ -167,4 +171,21 @@ select:focus {
 #status-msg {
   font-size: 14px;
   color: #2da44e;
+}
+
+.status-inline {
+  font-size: 14px;
+  min-height: 21px;
+}
+
+.status-inline.is-success {
+  color: #1a7f37;
+}
+
+.status-inline.is-error {
+  color: #cf222e;
+}
+
+.status-inline.is-loading {
+  color: #656d76;
 }

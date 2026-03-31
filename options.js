@@ -4,6 +4,7 @@ const FIELDS = ['jiraOrg', 'jiraEmail', 'jiraToken', 'githubToken',
 document.addEventListener('DOMContentLoaded', loadSettings);
 document.getElementById('settings-form').addEventListener('submit', saveSettings);
 document.getElementById('add-custom-field').addEventListener('click', () => addCustomFieldRow('', ''));
+document.getElementById('test-jira-token').addEventListener('click', testJiraToken);
 
 function loadSettings() {
   chrome.storage.sync.get([...FIELDS, 'customFields'], (data) => {
@@ -35,6 +36,46 @@ function saveSettings(e) {
     msg.textContent = 'Settings saved!';
     setTimeout(() => { msg.textContent = ''; }, 2000);
   });
+}
+
+async function testJiraToken() {
+  const button = document.getElementById('test-jira-token');
+  const status = document.getElementById('jira-test-status');
+  const jiraOrg = normalizeJiraOrg(document.getElementById('jiraOrg').value.trim());
+  const jiraEmail = document.getElementById('jiraEmail').value.trim();
+  const jiraToken = document.getElementById('jiraToken').value.trim();
+
+  if (!jiraOrg || !jiraEmail || !jiraToken) {
+    setInlineStatus(status, 'Enter organization domain, email, and API token first.', 'error');
+    return;
+  }
+
+  button.disabled = true;
+  setInlineStatus(status, 'Testing Jira credentials...', 'loading');
+
+  try {
+    const result = await chrome.runtime.sendMessage({
+      action: 'testJiraCredentials',
+      payload: { jiraOrg, jiraEmail, jiraToken },
+    });
+
+    if (result && result.success) {
+      const displayName = result.displayName ? ` for ${result.displayName}` : '';
+      setInlineStatus(status, `API token is valid${displayName}.`, 'success');
+    } else {
+      const message = result && result.error ? result.error : 'Jira validation failed.';
+      setInlineStatus(status, message, 'error');
+    }
+  } catch (err) {
+    setInlineStatus(status, 'Validation request failed: ' + (err.message || String(err)), 'error');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function setInlineStatus(el, message, type) {
+  el.textContent = message;
+  el.className = 'status-inline' + (type ? ' is-' + type : '');
 }
 
 function addCustomFieldRow(key, value) {

@@ -9,7 +9,44 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     fetchTeamOptions(msg.payload).then(sendResponse);
     return true;
   }
+  if (msg.action === 'testJiraCredentials') {
+    testJiraCredentials(msg.payload).then(sendResponse);
+    return true;
+  }
 });
+
+async function testJiraCredentials(payload) {
+  const jiraOrg = normalizeJiraOrg(payload.jiraOrg);
+  const { jiraEmail, jiraToken } = payload;
+  if (!jiraOrg || !jiraEmail || !jiraToken) {
+    return { success: false, error: 'Missing Jira organization, email, or API token.' };
+  }
+
+  const url = `https://${jiraOrg}.atlassian.net/rest/api/3/myself`;
+  try {
+    const res = await jiraRequest(
+      url,
+      { method: 'GET' },
+      jiraEmail,
+      jiraToken
+    );
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      return { success: false, error: formatJiraError(res.status, body) };
+    }
+
+    const data = await res.json().catch(() => ({}));
+    return {
+      success: true,
+      displayName: data.displayName || '',
+      accountId: data.accountId || '',
+    };
+  } catch (err) {
+    const { error, errorDetail } = enrichFetchFailure(err, 'GET', url, 'JIRA test failed: ');
+    return { success: false, error, errorDetail };
+  }
+}
 
 async function fetchTeamOptions(payload) {
   const jiraOrg = normalizeJiraOrg(payload.jiraOrg);
