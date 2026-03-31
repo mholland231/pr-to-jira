@@ -16,7 +16,7 @@
         <div class="field">
           <label for="jiraOrg">Organization Domain</label>
           <input type="text" id="jiraOrg" placeholder="mycompany (from mycompany.atlassian.net)">
-          <span class="hint">The subdomain of your Atlassian instance</span>
+          <span class="hint">Subdomain only — e.g. <code>lightspeedhq</code> for <code>lightspeedhq.atlassian.net</code> (do not paste the full URL)</span>
         </div>
         <div class="field">
           <label for="jiraEmail">Email</label>
@@ -79,6 +79,7 @@
       </div>
     </form>
   </div>
+  <script src="lib/normalize-jira-org.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

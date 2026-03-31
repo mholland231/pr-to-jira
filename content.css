@@ -141,6 +141,36 @@
   gap: 10px;
 }
 
+#pr-to-jira-modal .ptj-footer .ptj-status {
+  margin-right: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - 220px);
+  min-width: 0;
+}
+
+#pr-to-jira-modal .ptj-footer .ptj-status .ptj-status-inner {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#pr-to-jira-modal .ptj-footer .ptj-status .ptj-error-hint {
+  flex-shrink: 0;
+  cursor: help;
+  color: #cf222e;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.75;
+}
+
+#pr-to-jira-modal .ptj-footer .ptj-status .ptj-error-hint:hover {
+  opacity: 1;
+}
+
 #pr-to-jira-modal .ptj-btn-cancel {
   padding: 6px 14px;
   font-size: 14px;

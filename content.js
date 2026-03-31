@@ -197,6 +197,7 @@
     const issueTypeName = overlay.querySelector('#ptj-issue-type').value;
 
     if (!config.jiraOrg || !config.jiraEmail || !config.jiraToken || !projectKey) {
+      teamSelect.removeAttribute('title');
       teamSelect.innerHTML = '<option value="">Configure JIRA settings first</option>';
       return;
     }
@@ -214,15 +215,21 @@
       });
 
       if (result && result.success && result.options.length > 0) {
+        teamSelect.removeAttribute('title');
         teamSelect.innerHTML = '<option value="">-- Select Team --</option>' +
           result.options.map(o =>
             '<option value="' + escapeAttr(o.id) + '">' + escapeHtml(o.name) + '</option>'
           ).join('');
       } else {
-        teamSelect.innerHTML = '<option value="">' + escapeHtml(result?.error || 'No teams found') + '</option>';
+        const errMsg = result?.error || 'No teams found';
+        const errDetail = result?.errorDetail || errMsg;
+        teamSelect.innerHTML = '<option value="">' + escapeHtml(errMsg) + '</option>';
+        teamSelect.title = errDetail;
       }
     } catch (err) {
+      const errMsg = 'Failed to load teams: ' + (err.message || String(err));
       teamSelect.innerHTML = '<option value="">Failed to load teams</option>';
+      teamSelect.title = errMsg;
     }
   }
 
@@ -253,10 +260,12 @@
     }
 
     // Validate
-    if (!summary) { showStatus(statusEl, 'error', 'Summary is required.'); return; }
-    if (!projectKey) { showStatus(statusEl, 'error', 'Project Key is required.'); return; }
+    if (!summary) { showStatus(statusEl, 'error', 'Summary is required.', { fullText: 'Summary is required.' }); return; }
+    if (!projectKey) { showStatus(statusEl, 'error', 'Project Key is required.', { fullText: 'Project Key is required.' }); return; }
     if (!config.jiraOrg || !config.jiraEmail || !config.jiraToken) {
-      showStatus(statusEl, 'error', 'JIRA credentials not configured. <a href="#" id="ptj-open-options">Open settings</a>');
+      showStatus(statusEl, 'error', 'JIRA credentials not configured. <a href="#" id="ptj-open-options">Open settings</a>', {
+        fullText: 'JIRA credentials not configured. Open settings.',
+      });
       const link = statusEl.querySelector('#ptj-open-options');
       if (link) link.addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.sendMessage({ action: 'openOptions' }); });
       return;
@@ -295,7 +304,9 @@
     try {
       const result = await chrome.runtime.sendMessage({ action: 'createJiraTicket', payload });
       if (!result) {
-        showStatus(statusEl, 'error', 'No response from extension. Try reloading the page.');
+        showStatus(statusEl, 'error', 'No response from extension. Try reloading the page.', {
+          fullText: 'No response from extension. Try reloading the page.',
+        });
         submitBtn.disabled = false;
         return;
       }
@@ -312,18 +323,28 @@
         submitBtn.disabled = false;
         submitBtn.onclick = () => overlay.remove();
       } else {
-        showStatus(statusEl, 'error', escapeHtml(result.error));
+        const errLine = result.error != null ? String(result.error) : 'Unknown error';
+        const errDetail = result.errorDetail != null ? String(result.errorDetail) : errLine;
+        showStatus(statusEl, 'error', escapeHtml(errLine), { fullText: errDetail });
         submitBtn.disabled = false;
       }
     } catch (err) {
-      showStatus(statusEl, 'error', 'Extension error: ' + escapeHtml(err.message));
+      const extErr = 'Extension error: ' + (err.message || String(err));
+      showStatus(statusEl, 'error', escapeHtml(extErr), { fullText: extErr });
       submitBtn.disabled = false;
     }
   }
 
-  function showStatus(el, type, html) {
+  function showStatus(el, type, html, opts) {
     el.className = 'ptj-status' + (type ? ' ptj-' + type : '');
-    el.innerHTML = html;
+    const fullText = opts && opts.fullText;
+    if (type === 'error' && fullText) {
+      el.innerHTML =
+        '<span class="ptj-status-inner">' + html + '</span>' +
+        '<span class="ptj-error-hint" role="img" aria-label="Full error" title="' + escapeAttr(fullText) + '">\u2139</span>';
+    } else {
+      el.innerHTML = html;
+    }
   }
 
   // ---- Markdown to ADF (Atlassian Document Format) ----

@@ -1,3 +1,5 @@
+importScripts('lib/normalize-jira-org.js');
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.action === 'createJiraTicket') {
     handleCreateTicket(msg.payload).then(sendResponse);
@@ -10,7 +12,8 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 });
 
 async function fetchTeamOptions(payload) {
-  const { jiraOrg, jiraEmail, jiraToken, projectKey } = payload;
+  const jiraOrg = normalizeJiraOrg(payload.jiraOrg);
+  const { jiraEmail, jiraToken, projectKey } = payload;
   if (!jiraOrg || !jiraEmail || !jiraToken || !projectKey) {
     return { success: false, error: 'Missing JIRA config or project key.' };
   }
@@ -51,12 +54,15 @@ async function fetchTeamOptions(payload) {
 
     return { success: true, options };
   } catch (err) {
-    return { success: false, error: `Failed to fetch teams: ${err.message}` };
+    const url = `https://${jiraOrg}.atlassian.net/rest/api/3/search/jql`;
+    const { error, errorDetail } = enrichFetchFailure(err, 'POST', url, 'Failed to fetch teams: ');
+    return { success: false, error, errorDetail };
   }
 }
 
 async function handleCreateTicket(payload) {
-  const { jiraOrg, jiraEmail, jiraToken, githubToken } = payload.config;
+  const jiraOrg = normalizeJiraOrg(payload.config.jiraOrg);
+  const { jiraEmail, jiraToken, githubToken } = payload.config;
 
   // Validate credentials
   if (!jiraOrg || !jiraEmail || !jiraToken) {
@@ -122,7 +128,9 @@ async function handleCreateTicket(payload) {
     ticketKey = data.key;
     ticketUrl = `https://${jiraOrg}.atlassian.net/browse/${ticketKey}`;
   } catch (err) {
-    return { success: false, error: `JIRA request failed: ${err.message}` };
+    const url = `https://${jiraOrg}.atlassian.net/rest/api/3/issue`;
+    const { error, errorDetail } = enrichFetchFailure(err, 'POST', url, 'JIRA request failed: ');
+    return { success: false, error, errorDetail };
   }
 
   // Post comment on GitHub PR
@@ -188,6 +196,41 @@ async function githubRequest(url, options, token) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+/**
+ * fetch() network failures usually only expose message "Failed to fetch".
+ * Collect URL, method, abort vs network, cause, and stack for debugging (tooltip / copy).
+ */
+function enrichFetchFailure(err, method, url, headline) {
+  const name = err && err.name;
+  const msg = (err && err.message) || String(err);
+  const lines = [];
+  lines.push(headline + msg);
+  lines.push(`Request: ${method} ${url}`);
+  if (name === 'AbortError') {
+    lines.push('Note: Request was aborted (often the 30s timeout).');
+  } else if (msg === 'Failed to fetch') {
+    lines.push(
+      'Note: "Failed to fetch" usually means DNS, TLS, firewall/VPN, wrong site URL, or the host is unreachable — not a Jira error body.'
+    );
+  }
+  const cause = err && err.cause;
+  if (cause instanceof Error) {
+    lines.push(`Cause: ${cause.name}: ${cause.message}`);
+  } else if (cause != null && cause !== err) {
+    lines.push(`Cause: ${String(cause)}`);
+  }
+  if (name && name !== 'Error') {
+    lines.push(`Type: ${name}`);
+  }
+  if (err && err.stack) {
+    lines.push(err.stack.split('\n').slice(0, 6).join('\n'));
+  }
+  return {
+    error: headline + msg,
+    errorDetail: lines.join('\n'),
+  };
 }
 
 function formatJiraError(status, body) {

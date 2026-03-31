@@ -27,7 +27,7 @@ A Chrome extension that adds a "Create JIRA Ticket" button to GitHub Pull Reques
 Open the extension options page (click the extension icon > "Options", or right-click > "Options"):
 
 ### JIRA Configuration
-- **Organization Domain**: Your Atlassian subdomain (e.g. `mycompany` from `mycompany.atlassian.net`)
+- **Organization Domain**: **Subdomain only** — e.g. `mycompany` for `https://mycompany.atlassian.net`. Do not include `https://` or `.atlassian.net` (the extension adds that for API calls).
 - **Email**: Your Atlassian account email
 - **API Token**: Generate one at [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens)
 
@@ -71,12 +71,27 @@ The extension requests these permissions:
 
 Credentials are stored in `chrome.storage.sync` (encrypted at rest by Chrome) and are only used in the service worker to construct API requests.
 
+## Testing your Jira API token
+
+Use the same email and token as in the extension. Replace `YOUR_SUBDOMAIN` (subdomain only), `YOUR_EMAIL`, and `YOUR_API_TOKEN`:
+
+```bash
+curl -sS -u 'YOUR_EMAIL:YOUR_API_TOKEN' \
+  -H 'Accept: application/json' \
+  'https://YOUR_SUBDOMAIN.atlassian.net/rest/api/3/myself'
+```
+
+- **HTTP 200** and JSON with your `displayName` → token and site URL are valid.
+- **HTTP 401** → wrong email/token, or token revoked; create a new token at [API tokens](https://id.atlassian.com/manage-profile/security/api-tokens).
+- **DNS / connection errors** → wrong subdomain or network/VPN/firewall blocking `*.atlassian.net`.
+
 ## Troubleshooting
 
 | Problem | Solution |
 |---|---|
 | Button doesn't appear | Reload the extension on `chrome://extensions`. Make sure you're on a `/pull/` page. |
 | "JIRA credentials not configured" | Open the extension options and fill in your JIRA org, email, and API token. |
+| "Failed to fetch" / URL contains `.atlassian.net.atlassian.net` | **Organization Domain** must be the subdomain only (e.g. `lightspeedhq`), not `lightspeedhq.atlassian.net`. Re-save settings after upgrading the extension. |
 | JIRA 401 error | Check your JIRA email and API token are correct. |
 | JIRA 404 error | Check your project key and issue type name match your JIRA instance. |
 | GitHub comment 404 | Your PAT needs `repo` scope. For org repos with SSO, authorize the token for the org. |

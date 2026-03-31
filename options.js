@@ -8,7 +8,10 @@ document.getElementById('add-custom-field').addEventListener('click', () => addC
 function loadSettings() {
   chrome.storage.sync.get([...FIELDS, 'customFields'], (data) => {
     for (const id of FIELDS) {
-      if (data[id]) document.getElementById(id).value = data[id];
+      if (data[id]) {
+        document.getElementById(id).value =
+          id === 'jiraOrg' ? normalizeJiraOrg(data[id]) : data[id];
+      }
     }
     if (Array.isArray(data.customFields)) {
       for (const cf of data.customFields) {
@@ -22,7 +25,9 @@ function saveSettings(e) {
   e.preventDefault();
   const data = {};
   for (const id of FIELDS) {
-    data[id] = document.getElementById(id).value.trim();
+    let v = document.getElementById(id).value.trim();
+    if (id === 'jiraOrg') v = normalizeJiraOrg(v);
+    data[id] = v;
   }
   data.customFields = getCustomFields();
   chrome.storage.sync.set(data, () => {
