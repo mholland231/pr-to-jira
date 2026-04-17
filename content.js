@@ -94,9 +94,6 @@
 
     const overlay = document.createElement('div');
     overlay.id = OVERLAY_ID;
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) overlay.remove();
-    });
 
     const issueTypes = ['Task', 'Story', 'Bug', 'Sub-task', 'Epic'];
     const issueOpts = issueTypes.map(t =>
